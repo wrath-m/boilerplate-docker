@@ -1,16 +1,14 @@
 FROM <<REPLACE_WITH_DOCKER_IMAGE_FROM>>
 
-COPY install.bash /root
-COPY start.func.bash /root
-COPY start.source.bash /root
-
-RUN bash /root/install.bash
-RUN bash /root/start.func.bash
-RUN rm /root/install.bash
-RUN rm /root/start.func.bash
-RUN rm /root/start.source.bash
+RUN apt update
+RUN apt install -y sudo
+RUN apt install -y nano
+COPY sudoers /etc
 
 ADD src /usr/src
 COPY files /
 
-CMD bash /root/start.bash && sleep infinity
+RUN runuser -l <<REPLACE_WITH_DOCKER_USER>> -c "bash /install.bash"
+RUN rm /install.bash
+
+CMD runuser -l <<REPLACE_WITH_DOCKER_USER>> -c "bash /start.bash & sleep infinity"
